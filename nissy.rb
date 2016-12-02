@@ -36,6 +36,7 @@ class Tweet
 		@txt += "\n"
 		@txt += info[n].inner_text
 		@txt += "http://avex.jp/nissy/news/ #nissy"
+		@txt += getRand*" " 
 		if @txt.length <= 140 then
 			@txt.slice(/http+/,0)
 		elsif @txt.length <=140 then
