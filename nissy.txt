@@ -1,0 +1,3 @@
+ps aux | grep nissy
+
+nohup clockwork nissy.rb &

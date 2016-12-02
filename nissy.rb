@@ -4,10 +4,10 @@ require 'open-uri'
 require 'twitter'
 require 'clockwork'
 
-CK = "bnAb6vo3VvXeNUdzhu1kYkBTz"
-CS = "N139xXzml5WJd6ETlKJcCK030caMK2vW2O5E45RWQdhRwc4NA2"
-AT = "774256617667690496-ACzwQGKbl8sXUJC7CrzlvMwZcGbjQ2o"
-ATC = "GG06otqy3XkKdefWKxQFdxXBsOu9ZzO1kQktyqsDsOHDt"
+CK = 
+CS = 
+AT = 
+ATC = 
 
 
 class Tweet 
