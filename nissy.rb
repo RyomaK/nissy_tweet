@@ -4,10 +4,10 @@ require 'open-uri'
 require 'twitter'
 require 'clockwork'
 
-CK = 
-CS = 
-AT = 
-ATC = 
+CK = ENV["T_CK"]
+CS = ENV["T_CS"]
+AT = ENV["T_AT"]
+ATC = ENV["T_ATC"]
 
 
 class Tweet 
