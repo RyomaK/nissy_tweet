@@ -36,10 +36,11 @@ class Tweet
 		@txt += "\n"
 		@txt += info[n].inner_text
 		@txt += "http://avex.jp/nissy/news/ #nissy"
-		@txt += getRand*" " 
+		ram = Rand.new()
+		@txt += " " * ram.getRand
 		if @txt.length <= 140 then
 			@txt.slice(/http+/,0)
-		elsif @txt.length <=140 then
+		elsif @txt.length >=140 then
 			@txt.slice (141..@txt.length)
 		end
 	end
@@ -68,13 +69,14 @@ end
 
 
 include Clockwork
-every(150.minutes, 'nissy') do
+every(300.minutes, 'nissy') do
   
   r = Rand.new()
   t = Tweet.new(CK,CS,AT,ATC)
   t.setData(r.getRand)
   puts t.getTxt
   t.getClient.update(t.getTxt)
+  sleep(6000)
   t.setData(0)
   puts t.getTxt
   t.getClient.update(t.getTxt)
