@@ -1,2 +1,2 @@
 # nissy_tweet
-# nissy_tweet
+nohup clockwork nissy.rb &
