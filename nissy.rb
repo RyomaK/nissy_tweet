@@ -38,39 +38,61 @@ class Tweet
 			@txt += time[n].inner_text
 			@txt += "\n"
 			@txt += info[n].inner_text
-			@txt += "http://avex.jp/nissy/news/#{info[n].css('a')[0][:href].gsub(/.\//,"")} ##{k}"
+			@txt += "http://avex.jp/nissy/news/#{info[n].css('a')[0][:href].gsub(/.\//,"")} #Nissy #NissyEntertainment"
 			ram = Rand.new()
 			if @txt.length <= 140 then
-				
-			elsif @txt.length >=140 then
-				@txt.gsub(140..@txt.length,"")
+
+                        elsif @txt.length >=140 then
+                                @txt.slice(140,@txt.length-140)
+                        end
+
+                elsif k =="AAA" then
+                        time = doc_aaa.xpath('//dt')
+                        info = doc_aaa.xpath('//dd')
+
+                        @txt += time[n].inner_text
+                        @txt += "\n"
+                        @txt += info[n].inner_text.gsub(/newUp.+/,"\n")
+                        @txt += " http://avex.jp/aaa/news/#{info[n].css('a')[0][:href]} ##{k}"
+                        ram = Rand.new()
+                        @txt += " " * ram.getRand
+                        if @txt.length <= 140 then
+
+                        elsif @txt.length >=140 then
+                                @txt.slice(140,@txt.length-140)
+                        end
+                end
+        end
+
+        def getClient
+                @client
+        end
+
+        def getTxt
+                @txt
+        end
+
+        def refollow(client)
+    		follower_ids = []
+			client.follower_ids('Nissy_inform').each do |id|
+  				follower_ids.push(id)
 			end
 
-		elsif k =="AAA" then
-			time = doc_aaa.xpath('//dt')
-			info = doc_aaa.xpath('//dd')
-
-			@txt += time[n].inner_text
-			@txt += "\n"
-			@txt += info[n].inner_text.gsub(/newUp.+/,"\n")
-			@txt += " http://avex.jp/aaa/news/#{info[n].css('a')[0][:href]} ##{k}"
-			ram = Rand.new()
-			@txt += " " * ram.getRand
-			if @txt.length <= 140 then
-				
-			elsif @txt.length >=140 then
-				@txt.gsub(140..@txt.length,"")
+			friend_ids = []
+			client.friend_ids('Nissy_inform').each do |id|
+  				friend_ids.push(id)
 			end
-		end
-	end
+			client.follow(follower_ids - friend_ids)
+        end
 
-	def getClient
-		@client
-	end
+        def followUser(client)
+			results = client.search("#Nissy", :count => 50, :result_type => "recent")
+			results.attrs[:statuses].each do |tweet|
+    			id = tweet[:id].to_s
+    			client.favorite(id)
+			end
+        end
 
-	def getTxt
-		@txt
-	end
 
 	end
 
@@ -92,7 +114,8 @@ class Tweet
 
 		r = Rand.new()
 		t = Tweet.new(CK,CS,AT,ATC)
-
+		t.refollow(t.getClient)
+		t.followUser(t.getClient)
 		t.setData(r.getRand,"nissy")
 		puts t.getTxt
 		t.getClient.update(t.getTxt)
@@ -108,7 +131,6 @@ class Tweet
 		t.setData(0,"nissy")
 		puts t.getTxt
 		t.getClient.update(t.getTxt)
-
 		sleep(6000)
 
 		t.setData(0,"AAA")
