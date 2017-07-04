@@ -11,7 +11,6 @@ ATC = ENV["T_ATC"]
 
 
 class Tweet 
-
 	def initialize(a,b,c,d)
 		@consumer_key        = ""
 		@consumer_secret     = ""
@@ -24,7 +23,6 @@ class Tweet
 			access_token_secret: d
 			)
 	end
-
 
 	def setData(n,k)
 		doc_nissy = Nokogiri::HTML(open('http://avex.jp/nissy/news/'))
@@ -47,15 +45,14 @@ class Tweet
                         end
 
                 elsif k =="AAA" then
-                        time = doc_aaa.xpath('//dt')
-                        info = doc_aaa.xpath('//dd')
+                        year = doc_aaa.xpath('//dt/span')
+                        day = doc_aaa.xpath('//dt/time')
+                        info = doc_aaa.xpath('//dd/a')
 
-                        @txt += time[n].inner_text
+                        @txt += "#{year[n].inner_text}/#{dat[n].inner_text}"
                         @txt += "\n"
-                        @txt += info[n].inner_text.gsub(/newUp.+/,"\n")
-                        @txt += " http://avex.jp/aaa/news/#{info[n].css('a')[0][:href]} ##{k}"
-                        ram = Rand.new()
-                        @txt += " " * ram.getRand
+                        @txt += info[n].inner_text
+                        @txt += "\n http://avex.jp/aaa/news/#{info[n].css('a')[0][:href]} ##{k}"
                         if @txt.length <= 140 then
 
                         elsif @txt.length >=140 then
@@ -74,19 +71,42 @@ class Tweet
 
         def refollow(client)
     		follower_ids = []
-			client.follower_ids('Nissy_inform').each do |id|
-  				follower_ids.push(id)
-			end
+		client.follower_ids('Nissy_inform').each do |id|
+  			follower_ids.push(id)
+		end
 
-			friend_ids = []
-			client.friend_ids('Nissy_inform').each do |id|
-  				friend_ids.push(id)
-			end
-			client.follow(follower_ids - friend_ids)
+		friend_ids = []
+		client.friend_ids('Nissy_inform').each do |id|
+  			friend_ids.push(id)
+		end
+		client.follow(follower_ids - friend_ids)
         end
 
-        def followUser(client)
-			results = client.search("#Nissy", :count => 50, :result_type => "recent")
+	def unfollow(client)
+    		follower_ids = []
+		client.follower_ids('Nissy_inform').each do |id|
+  			follower_ids.push(id)
+		end
+
+		friend_ids = []
+		client.friend_ids('Nissy_inform').each do |id|
+  			friend_ids.push(id)
+		end
+		client.unfollow(friend_ids - follower_ids)
+	end
+
+        def favoriteTweet(client)
+			results = client.search("#Nissy", :count => 30, :result_type => "recent")
+			results.attrs[:statuses].each do |tweet|
+    			id = tweet[:id].to_s
+    			client.favorite(id)
+			end
+			results = client.search("#AAA", :count => 30, :result_type => "recent")
+			results.attrs[:statuses].each do |tweet|
+    			id = tweet[:id].to_s
+    			client.favorite(id)
+			end
+			results = client.search("#いいねした人全員フォローする", :count => 30, :result_type => "recent")
 			results.attrs[:statuses].each do |tweet|
     			id = tweet[:id].to_s
     			client.favorite(id)
@@ -98,7 +118,7 @@ class Tweet
 
 	class Rand
 		def initialize()
-			@Rand  = rand(1..8)
+			@Rand  = rand(1..10)
 		end
 		def getRand
 			@Rand
@@ -110,31 +130,43 @@ class Tweet
 
 
 	include Clockwork
+	count = 0
 	every(10.minutes, 'nissy') do
-
 		r = Rand.new()
-		t = Tweet.new(CK,CS,AT,ATC)
+        t = Tweet.new(CK,CS,AT,ATC)
+		if count == 0 then	
+			puts 'unfollow'
+			t.unfollow(t.getClient)
+		end
+		count +=1
+		
+		t.favoriteTweet(t.getClient)
 		t.refollow(t.getClient)
-		t.followUser(t.getClient)
+		
 		t.setData(r.getRand,"nissy")
 		puts t.getTxt
 		t.getClient.update(t.getTxt)
 
-		sleep(6000)
+		sleep(7200)
 
 		t.setData(r.getRand,"AAA")
 		puts t.getTxt
 		t.getClient.update(t.getTxt)
 
-		sleep(6000)
+		t.followUser(t.getClient)
+		sleep(7200)
 
 		t.setData(0,"nissy")
 		puts t.getTxt
-		t.getClient.update(t.getTxt)
-		sleep(6000)
+		t.getClient.update_with_media(t.getTxt,"./img/#{r.getRand}.jpeg")
+		
+		sleep(7200)
 
 		t.setData(0,"AAA")
 		puts t.getTxt
-		t.getClient.update(t.getTxt)
+		t.getClient.update_with_media(t.getTxt,"./img/#{r.getRand}.jpeg")
 
+		sleep(7200)
+		
+		puts count
 	end
