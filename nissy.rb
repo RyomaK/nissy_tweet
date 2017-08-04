@@ -158,14 +158,14 @@ every(10.minutes, 'nissy') do
 
 	t.setData(0,"nissy")
 	puts t.getTxt
-	t.getClient.update_with_media(t.getTxt,"./img/#{r.getRand}.jpeg")
+	t.getClient.update_with_media(t.getTxt,open("./img/#{r.getRand}.jpeg"))
 	t.refollow(t.getClient)
 
 	sleep(7200)
 
 	t.setData(0,"AAA")
 	puts t.getTxt
-	t.getClient.update_with_media(t.getTxt,"./img/#{r.getRand}.jpeg")
+	t.getClient.update_with_media(t.getTxt,open("./img/#{r.getRand}.jpeg"))
 
 	sleep(7200)
 
